@@ -1,6 +1,10 @@
 package lp2;
 
+import java.util.List;
+
+import lp2.ConnectFour.Color;
 import lp2.GameState.Player;
+import lp2.GameState.Status;
 
 public class AIC4Player implements GamePlayer<Integer> {
 	private Player me;
@@ -12,21 +16,140 @@ public class AIC4Player implements GamePlayer<Integer> {
 	@Override
 	public String getName() {
 		// TODO Replace with a name for your AI (school appropriate please)
-		return "Your AI's name";
+		return "Tiny Rick";
 	}
 	
 	private int eval(ConnectFour gs) {
-		// TODO Implement a board evaluation function
-		return 0;
+		
+		int sum = 0;
+		
+		Color meColor = Color.RED;
+		Color oppColor = Color.BLACK;
+		
+		int[][] evalMatrix = {{2, 2, 3, 10, 3, 2, 2}, 
+				              {8, 3, 3, 10, 4, 3, 2},
+				              {-8, 3, 3, 15, 4, 3, 2}, 
+				              {3, 3, 3, 15, 4, 4, 2},
+				              {3, 4, 3, 15, 4, 3, 4},
+				              {-25, -15, 8, 30, 8, -15, -25}};
+		
+		if(me != Player.ONE){
+			meColor = Color.BLACK;
+			oppColor = Color.RED;
+		}
+	
+		
+		for (int i = 0; i < gs.HEIGHT-1; i++) {
+			
+			for (int j = 0; j < gs.WIDTH-1; j++) {
+				
+				if (gs.getSquare(i,j).equals(meColor)) {
+					sum += evalMatrix[i][j];
+				} else if (gs.getSquare(i,j).equals(oppColor)) {
+					sum += evalMatrix[i][j];
+				}
+			}
+		}
+		
+		return sum;
 	}
 	
 	@Override
 	public Integer getMove(GameState<Integer> gs) {
-		if(!(gs instanceof ConnectFour))
+		int minDepth = 6;
+		int bestValue = Integer.MIN_VALUE;
+		
+		if(!(gs instanceof ConnectFour)) {
 			throw new IllegalArgumentException("Cannot play non-Connect four game.");
+		}
+			
 		ConnectFour c4 = (ConnectFour)gs;
 		
-		// TODO Implement your Connect Four AI's behavior
-		return c4.getMoves().get(0);
+			System.out.println("AI " + (me == Player.ONE ? "Red" : "Black") + "'s turn");
+			
+			List<Integer> listMoves = c4.getMoves();
+			
+			int move = listMoves.get(0);
+			
+			for(Integer moves: listMoves) {
+				
+				 ConnectFour copyCurrentState = (ConnectFour) c4.copyState();
+				 copyCurrentState.playMove(moves);
+				 
+				 int minimaxValue = minimax(copyCurrentState, minDepth, false);
+				 
+				 if (minimaxValue >= bestValue) {
+					 bestValue = minimaxValue;
+					 move = moves;
+				 }
+			 }
+		
+		return move;
+	}
+	
+	private int bestMove (ConnectFour c4, int minDepth, Boolean isTurn) {
+		int bestValue;
+		int minimaxValue;
+		
+		if (isTurn) {
+
+			bestValue = Integer.MIN_VALUE;
+			List<Integer> listMoves = c4.getMoves();
+
+			for (Integer moves : listMoves) {
+
+				ConnectFour copyCurrentState = (ConnectFour) c4.copyState();
+				copyCurrentState.playMove(moves);
+
+				minimaxValue = minimax(copyCurrentState, minDepth - 1, !isTurn);
+
+				if (minimaxValue > bestValue) {
+					bestValue = minimaxValue;
+				}
+			}
+
+			return bestValue;
+
+		} else {
+
+			bestValue = Integer.MAX_VALUE;
+			List<Integer> listMoves = c4.getMoves();
+
+			for (Integer moves : listMoves) {
+
+				ConnectFour copyStates = (ConnectFour) c4.copyState();
+				copyStates.playMove(moves);
+
+				minimaxValue = minimax(copyStates, minDepth - 1, !isTurn);
+
+				if (minimaxValue < bestValue) {
+					bestValue = minimaxValue;
+				}
+			}
+
+			return bestValue;
+		}
+	}
+	
+	public int minimax(ConnectFour c4, int minDepth, Boolean isTurn){
+		
+		if (c4.getGameStatus() == Status.DRAW) {
+			return 0;
+		} else if ((c4.getGameStatus() == Status.ONEWIN && me == Player.ONE) 
+							|| (c4.getGameStatus() == Status.TWOWIN && me == Player.TWO )){
+			
+			return Integer.MAX_VALUE - minDepth;
+		} else if ((c4.getGameStatus() == Status.TWOWIN && me == Player.ONE) 
+							|| (c4.getGameStatus() == Status.ONEWIN && me == Player.TWO)){
+			
+			return Integer.MIN_VALUE + minDepth;
+		}
+		
+		
+		if (minDepth == 0) {
+			return eval(c4);
+		}
+		 
+		return bestMove(c4, minDepth, isTurn);
 	}
 }

@@ -59,13 +59,13 @@ public class AIC4Player implements GamePlayer<Integer> {
 		int minDepth = 6;
 		int bestValue = Integer.MIN_VALUE;
 		
-		if(!(gs instanceof ConnectFour)) {
+		if (!(gs instanceof ConnectFour)) {
 			throw new IllegalArgumentException("Cannot play non-Connect four game.");
 		}
 			
 		ConnectFour c4 = (ConnectFour)gs;
 		
-			System.out.println("AI " + (me == Player.ONE ? "Red" : "Black") + "'s turn");
+			System.out.println("AI " + (me == Player.ONE ? "Tiny Rick" : "Pickle Rick") + "'s turn");
 			
 			List<Integer> listMoves = c4.getMoves();
 			
@@ -87,9 +87,25 @@ public class AIC4Player implements GamePlayer<Integer> {
 		return move;
 	}
 	
-	private int bestMove (ConnectFour c4, int minDepth, Boolean isTurn) {
+	public int minimax(ConnectFour c4, int minDepth, Boolean isTurn){
 		int bestValue;
-		int minimaxValue;
+		
+		if (c4.getGameStatus() == Status.DRAW) {
+			return 0;
+		} else if ((c4.getGameStatus() == Status.ONEWIN && me == Player.ONE) 
+							|| (c4.getGameStatus() == Status.TWOWIN && me == Player.TWO )){
+			
+			return Integer.MAX_VALUE - minDepth;
+		} else if ((c4.getGameStatus() == Status.TWOWIN && me == Player.ONE) 
+							|| (c4.getGameStatus() == Status.ONEWIN && me == Player.TWO)){
+			
+			return Integer.MIN_VALUE + minDepth;
+		}
+		
+		
+		if (minDepth == 0) {
+			return eval(c4);
+		}
 		
 		if (isTurn) {
 
@@ -97,11 +113,13 @@ public class AIC4Player implements GamePlayer<Integer> {
 			List<Integer> listMoves = c4.getMoves();
 
 			for (Integer moves : listMoves) {
+				
+				System.out.println(listMoves);
 
 				ConnectFour copyCurrentState = (ConnectFour) c4.copyState();
 				copyCurrentState.playMove(moves);
 
-				minimaxValue = minimax(copyCurrentState, minDepth - 1, !isTurn);
+				int minimaxValue = minimax(copyCurrentState, minDepth - 1, !isTurn);
 
 				if (minimaxValue > bestValue) {
 					bestValue = minimaxValue;
@@ -120,7 +138,7 @@ public class AIC4Player implements GamePlayer<Integer> {
 				ConnectFour copyStates = (ConnectFour) c4.copyState();
 				copyStates.playMove(moves);
 
-				minimaxValue = minimax(copyStates, minDepth - 1, !isTurn);
+				int minimaxValue = minimax(copyStates, minDepth - 1, !isTurn);
 
 				if (minimaxValue < bestValue) {
 					bestValue = minimaxValue;
@@ -129,27 +147,5 @@ public class AIC4Player implements GamePlayer<Integer> {
 
 			return bestValue;
 		}
-	}
-	
-	public int minimax(ConnectFour c4, int minDepth, Boolean isTurn){
-		
-		if (c4.getGameStatus() == Status.DRAW) {
-			return 0;
-		} else if ((c4.getGameStatus() == Status.ONEWIN && me == Player.ONE) 
-							|| (c4.getGameStatus() == Status.TWOWIN && me == Player.TWO )){
-			
-			return Integer.MAX_VALUE - minDepth;
-		} else if ((c4.getGameStatus() == Status.TWOWIN && me == Player.ONE) 
-							|| (c4.getGameStatus() == Status.ONEWIN && me == Player.TWO)){
-			
-			return Integer.MIN_VALUE + minDepth;
-		}
-		
-		
-		if (minDepth == 0) {
-			return eval(c4);
-		}
-		 
-		return bestMove(c4, minDepth, isTurn);
 	}
 }

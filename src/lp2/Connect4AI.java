@@ -37,8 +37,8 @@ public class Connect4AI {
 		
 		//Set up the game to be played
 		if(gameToPlay == GameName.CONNECTFOUR) {
-			GamePlayer<Integer> p1 = new HumanC4Player(Player.ONE, "Player One");
-			GamePlayer<Integer> p2 = new HumanC4Player(Player.TWO, "Player Two");
+			GamePlayer<Integer> p1 = new AIC4Player(Player.ONE);
+			GamePlayer<Integer> p2 = new AIC4Player(Player.TWO);
 			ConnectFour c4Game = new ConnectFour();
 			
 			gr = new TwoPlayerGameRunner<Integer>(c4Game, p1, p2, f);

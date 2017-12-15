@@ -37,10 +37,15 @@ public class Reversi implements GameState<Pair<Integer>>{
 		turn = Player.ONE;
 	}
 	
-	public Reversi(Reversi r) {
-		this.board = r.board;
-		this.turn = r.turn;
-	}
+	public Reversi(Reversi rev) {
+        this.board = new Color[WIDTH][HEIGHT];
+        for(int i = 0; i < WIDTH; i++) {
+            for(int j = 0; j < HEIGHT; j++) {
+                this.board[i][j] = rev.board[i][j];
+            }
+        }
+        this.turn = rev.turn;
+    }
 	
 	public GameState<Pair<Integer>> copyState() {
 		return new Reversi(this);

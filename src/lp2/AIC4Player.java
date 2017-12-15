@@ -113,8 +113,6 @@ public class AIC4Player implements GamePlayer<Integer> {
 			List<Integer> listMoves = c4.getMoves();
 
 			for (Integer moves : listMoves) {
-				
-				System.out.println(listMoves);
 
 				ConnectFour copyCurrentState = (ConnectFour) c4.copyState();
 				copyCurrentState.playMove(moves);

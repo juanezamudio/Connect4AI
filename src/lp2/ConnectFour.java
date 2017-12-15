@@ -32,9 +32,14 @@ public class ConnectFour implements GameState<Integer> {
 	}
 	
 	public ConnectFour(ConnectFour c4) {
-		this.board = c4.board;
-		this.turn = c4.turn;
-	}
+        this.board = new Color[WIDTH][HEIGHT];
+        for(int i = 0; i < WIDTH; i++) {
+            for(int j = 0; j < HEIGHT; j++) {
+                this.board[i][j] = c4.board[i][j];
+            }
+        }
+        this.turn = c4.turn;
+    }
 	
 	public GameState<Integer> copyState() {
 		return new ConnectFour(this);
